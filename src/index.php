@@ -1,47 +1,35 @@
 <?php
-session_start();
+// قراءة متغير البيئة DATABASE_URL
+$db_url = getenv("DATABASE_URL");
 
-$servername = "db";               // اسم السيرفر أو الحاوية الخاصة بقاعدة البيانات
-$dbusername = "php_docker";       // اسم المستخدم كما هو معرف في docker-compose.yml
-$dbpassword = "password";         // كلمة المرور كما هو معرف
-$dbname = "php_docker";           // اسم قاعدة البيانات
+if (!$db_url) {
+    echo "خطأ: لم يتم العثور على متغير البيئة DATABASE_URL.<br>";
+    exit;
+}
 
-// إنشاء الاتصال باستخدام PostgreSQL بدلاً من MySQL
-$conn = pg_connect("host=$servername dbname=$dbname user=$dbusername password=$dbpassword");
+// الاتصال بقاعدة البيانات
+$conn = pg_connect($db_url);
 
-// التحقق من الاتصال
 if (!$conn) {
-    die("فشل الاتصال: " . pg_last_error());
+    echo "فشل الاتصال بقاعدة البيانات: " . pg_last_error();
+    exit;
 }
 
-$message = "";
+// مثال على تنفيذ استعلام بسيط
+$result = pg_query($conn, "SELECT NOW() as current_time");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-
-    // استخدام استعلام PostgreSQL للتحقق من اسم المستخدم وكلمة المرور
-    $result = pg_query_params($conn, "SELECT id, password FROM users WHERE username = $1", array($username));
-
-    if (pg_num_rows($result) > 0) {
-        $row = pg_fetch_assoc($result);
-        $id = $row['id'];
-        $hashed_password = $row['password'];
-
-        if (password_verify($password, $hashed_password)) {
-            $_SESSION['user_id'] = $id;
-            header("Location: welcome.php");
-            exit;
-        } else {
-            $message = "كلمة المرور غير صحيحة.";
-        }
-    } else {
-        $message = "اسم المستخدم غير موجود.";
-    }
+if (!$result) {
+    echo "خطأ في تنفيذ الاستعلام: " . pg_last_error($conn);
+    exit;
 }
 
+$row = pg_fetch_assoc($result);
+echo "🟢 الاتصال ناجح! الوقت الحالي في الخادم هو: " . $row['current_time'];
+
+// إغلاق الاتصال
 pg_close($conn);
 ?>
+
 
 
 <!DOCTYPE html>
