@@ -1,10 +1,6 @@
 <?php
-// الاتصال بقاعدة البيانات باستخدام DATABASE_URL
-$dbUrl = getenv("DATABASE_URL");
-
-if (!$dbUrl) {
-    die("❌ DATABASE_URL is not set in environment variables.");
-}
+// الاتصال بقاعدة البيانات باستخدام رابط الاتصال الثابت
+$dbUrl = "postgresql://php_docker:CKo1JeLIcblU87uGF97HgM13ulQXRhlJ@dpg-d0bs4g2dbo4c73d37otg-a.oregon-postgres.render.com/php_docker";
 
 $conn = pg_connect($dbUrl);
 
@@ -18,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = $_POST["username"];
     $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
 
+    // إضافة المستخدم إلى قاعدة البيانات باستخدام pg_query_params لتجنب هجمات SQL Injection
     $result = pg_query_params($conn, "INSERT INTO users (username, password) VALUES ($1, $2)", [$username, $password]);
 
     if ($result) {

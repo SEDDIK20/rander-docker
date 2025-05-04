@@ -1,33 +1,12 @@
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: php_docker
-      POSTGRES_USER: php_docker
-      POSTGRES_PASSWORD: CKo1JeLIcblU87uGF97HgM13ulQXRhlJ
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./db:/docker-entrypoint-initdb.d
+version: '3.8'
 
-  www:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    volumes:
-      - ./src:/var/www/html
-      - DATABASE_URL: "postgresql://php_docker:password@db:5432/php_docker"
+services:
+  app:
+    build: .
+    container_name: php_app
     ports:
       - "8080:80"
-    depends_on:
-      - db
-
-  pgadmin:
-    image: dpage/pgadmin4
+    volumes:
+      - .:/var/www/html
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "8001:80"
-    depends_on:
-      - db
+      - DATABASE_URL = "postgresql://php_docker:CKo1JeLIcblU87uGF97HgM13ulQXRhlJ@dpg-d0bs4g2dbo4c73d37otg-a.oregon-postgres.render.com/php_docker"
