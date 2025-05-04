@@ -13,6 +13,7 @@ if (!$conn) {
 }
 
 // معالجة البيانات عند إرسال النموذج
+$message = ""; // تعريف المتغير الرسالة
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = $_POST["username"];
     $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
@@ -20,14 +21,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $result = pg_query_params($conn, "INSERT INTO users (username, password) VALUES ($1, $2)", [$username, $password]);
 
     if ($result) {
-        echo "✅ User registered successfully!";
+        $message = "✅ تم تسجيل المستخدم بنجاح!";
     } else {
-        echo "❌ Error: " . pg_last_error($conn);
+        $message = "❌ حدث خطأ: " . pg_last_error($conn);
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="ar">
