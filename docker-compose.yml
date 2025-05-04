@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: php_docker
       POSTGRES_USER: php_docker
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: CKo1JeLIcblU87uGF97HgM13ulQXRhlJ
     ports:
       - "5432:5432"
     volumes:
@@ -16,6 +16,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./src:/var/www/html
+      - DATABASE_URL: "postgresql://php_docker:password@db:5432/php_docker"
     ports:
       - "8080:80"
     depends_on:
