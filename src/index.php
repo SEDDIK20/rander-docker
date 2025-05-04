@@ -10,16 +10,30 @@ if (!$conn) {
     exit;
 }
 
-// مثال على تنفيذ استعلام بسيط
-$result = pg_query($conn, "SELECT NOW() as current_time");
+$message = "";
 
-if (!$result) {
-    echo "خطأ في تنفيذ الاستعلام: " . pg_last_error($conn);
-    exit;
+// التحقق من بيانات النموذج عند الإرسال
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = $_POST["username"];
+    $password = $_POST["password"];
+
+    // استعلام للتحقق من صحة اسم المستخدم وكلمة المرور
+    $result = pg_query_params($conn, "SELECT password FROM users WHERE username = $1", [$username]);
+
+    if ($result && pg_num_rows($result) > 0) {
+        $row = pg_fetch_assoc($result);
+        // مقارنة كلمة المرور المدخلة مع كلمة المرور المخزنة
+        if (password_verify($password, $row['password'])) {
+            // إذا كانت البيانات صحيحة، توجيه المستخدم إلى صفحة الترحيب
+            header("Location: welcome.php");
+            exit;
+        } else {
+            $message = "❌ كلمة المرور غير صحيحة!";
+        }
+    } else {
+        $message = "❌ اسم المستخدم غير موجود!";
+    }
 }
-
-$row = pg_fetch_assoc($result);
-echo "🟢 الاتصال ناجح! الوقت الحالي في الخادم هو: " . $row['current_time'];
 
 // إغلاق الاتصال
 pg_close($conn);
