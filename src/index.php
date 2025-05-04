@@ -1,14 +1,9 @@
 <?php
-// قراءة متغير البيئة DATABASE_URL
-$db_url = getenv("DATABASE_URL");
-
-if (!$db_url) {
-    echo "خطأ: لم يتم العثور على متغير البيئة DATABASE_URL.<br>";
-    exit;
-}
+// تعيين الرابط الثابت لقاعدة البيانات
+$dbUrl = "postgresql://php_docker:CKo1JeLIcblU87uGF97HgM13ulQXRhlJ@dpg-d0bs4g2dbo4c73d37otg-a.oregon-postgres.render.com/php_docker";
 
 // الاتصال بقاعدة البيانات
-$conn = pg_connect($db_url);
+$conn = pg_connect($dbUrl);
 
 if (!$conn) {
     echo "فشل الاتصال بقاعدة البيانات: " . pg_last_error();
@@ -29,8 +24,6 @@ echo "🟢 الاتصال ناجح! الوقت الحالي في الخادم ه
 // إغلاق الاتصال
 pg_close($conn);
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="ar">
