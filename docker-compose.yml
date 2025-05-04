@@ -1,0 +1,25 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest  # استخدم PostgreSQL بدلاً من MySQL
+    environment:
+      - POSTGRES_DB=php_docker
+      - POSTGRES_USER=php_docker
+      - POSTGRES_PASSWORD=password # يجب أن يكون هذا موجودًا في المتغيرات البيئية
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d" # هذه الطريقة لحفظ قاعدة البيانات
+  www:
+    image: php:apache
+    build: .
+    volumes:
+      - "./:/var/www/html" # مزامنة المجلد المحلي مع المجلد في الحاوية
+    ports:
+      - 80:80
+      - 443:443
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8001:80
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=5432  # تغيير المنفذ إلى 5432 (المنفذ الافتراضي لـ PostgreSQL)
