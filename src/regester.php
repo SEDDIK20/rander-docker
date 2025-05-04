@@ -1,32 +1,29 @@
 <?php
-$message = "";
+// الاتصال بقاعدة البيانات باستخدام DATABASE_URL
+$dbUrl = getenv("DATABASE_URL");
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $servername = "db";               // اسم السيرفر أو الحاوية الخاصة بقاعدة البيانات
-    $dbusername = "php_docker";       // اسم المستخدم كما هو معرف في docker-compose.yml
-    $dbpassword = "password";         // كلمة المرور كما هو معرف
-    $dbname = "php_docker";           // اسم قاعدة البيانات
+if (!$dbUrl) {
+    die("❌ DATABASE_URL is not set in environment variables.");
+}
 
-    // إنشاء الاتصال باستخدام PostgreSQL بدلاً من MySQL
-    $conn = pg_connect("host=$servername dbname=$dbname user=$dbusername password=$dbpassword");
+$conn = pg_connect($dbUrl);
 
-    if (!$conn) {
-        die("فشل الاتصال: " . pg_last_error());
-    }
+if (!$conn) {
+    die("❌ Connection failed: " . pg_last_error());
+}
 
-    $username = $_POST['username'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+// معالجة البيانات عند إرسال النموذج
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = $_POST["username"];
+    $password = password_hash($_POST["password"], PASSWORD_BCRYPT);
 
-    // استخدام استعلام PostgreSQL لإدخال المستخدم الجديد
-    $result = pg_query_params($conn, "INSERT INTO users (username, password) VALUES ($1, $2)", array($username, $password));
+    $result = pg_query_params($conn, "INSERT INTO users (username, password) VALUES ($1, $2)", [$username, $password]);
 
     if ($result) {
-        $message = "تم التسجيل بنجاح! يمكنك الآن تسجيل الدخول.";
+        echo "✅ User registered successfully!";
     } else {
-        $message = "خطأ: " . pg_last_error($conn);
+        echo "❌ Error: " . pg_last_error($conn);
     }
-
-    pg_close($conn);
 }
 ?>
 
