@@ -1,11 +1,16 @@
-FROM php:apache
+# Dockerfile
 
-# تثبيت الحزم المطلوبة لتشغيل pgsql و pdo_pgsql
-RUN apt-get update && apt-get install -y libpq-dev
+FROM php:8.2-apache
 
-# تثبيت الامتدادات الخاصة بـ MySQL و PostgreSQL
-RUN docker-php-ext-install mysqli pdo pdo_mysql pgsql pdo_pgsql
+# تثبيت الحزم المطلوبة لامتدادات PostgreSQL
+RUN apt-get update && apt-get install -y libpq-dev unzip \
+    && docker-php-ext-install pgsql pdo_pgsql
 
-
-# تمكين mod_rewrite
+# تفعيل mod_rewrite
 RUN a2enmod rewrite
+
+# نسخ ملفات المشروع
+COPY ./src /var/www/html
+
+# تعيين مجلد العمل
+WORKDIR /var/www/html
